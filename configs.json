@@ -5,7 +5,7 @@
         "loss_lambda": 1.3e-6,
         "model": {
             "gated_graph_conv_args": {
-                "out_channels": 200,
+                "out_channels": 128,
                 "num_layers": 6,
                 "aggr": "add",
                 "bias": true
@@ -17,7 +17,7 @@
         "filter_column_value": {
             "project": "qemu"
         },
-        "slice_size": 100,
+        "slice_size": 50,
         "joern_cli_dir": "joern/joern-cli/",
         "data_size": -1
     },
@@ -39,14 +39,14 @@
         "model": "checkpoint.pt"
     },
     "embed": {
-        "max_nodes": 205,
+        "max_nodes": 100,
         "word2vec_args": {
-            "size": 100,
+            "vector_size": 50,
             "alpha": 0.01,
             "window": 5,
             "min_count": 3,
             "sample": 1e-5,
-            "workers": 4,
+            "workers": 2,
             "sg": 1,
             "hs": 0,
             "negative": 5
@@ -54,13 +54,13 @@
         "edge_type": "Ast"
     },
     "process": {
-        "use_gpu": true,
+        "use_gpu": false,
         "epochs": 200,
         "patience": 10,
         "delta": 0,
         "verbose": true,
         "batch_size": 512,
-        "dataset_ratio": 0.6,
+        "dataset_ratio": 1.0,
         "shuffle": false
     }
 }

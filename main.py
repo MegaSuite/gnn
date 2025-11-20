@@ -38,10 +38,6 @@ def select(dataset):
     result = dataset.loc[dataset["project"] == "FFmpeg"]
     len_filter = result.func.str.len() < 1200
     result = result.loc[len_filter]
-    # print(len(result))
-    # result = result.iloc[11001:]
-    # print(len(result))
-    # 暂时只使用前200条数据
     result = result.head(CREATE_PARAMS.data_size)
 
     return result
@@ -109,9 +105,9 @@ def embed_task():
         tokens_dataset = data.tokenize(cpg_dataset)  # 对程序源码文本进行分词，返回分词的结果
         data.write(tokens_dataset, PATHS.tokens, f"{file_name}_{FILES.tokens}")
         # word2vec used to learn the initial embedding of each token
-        w2vmodel.build_vocab(sentences=tokens_dataset.tokens, update=not w2v_init)
+        w2vmodel.build_vocab(corpus_iterable=tokens_dataset.tokens, update=not w2v_init)
         w2vmodel.train(
-            tokens_dataset.tokens, total_examples=w2vmodel.corpus_count, epochs=1
+            corpus_iterable=tokens_dataset.tokens, total_examples=w2vmodel.corpus_count, epochs=1
         )
         if w2v_init:
             w2v_init = False
