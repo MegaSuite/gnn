@@ -28,24 +28,39 @@ class Readout(nn.Module):
     def __init__(self, in_channels):
         super(Readout, self).__init__()
         self.in_channels = in_channels
+        
+        # 注意力机制：学习节点的重要性权重
+        self.attention = nn.Sequential(
+            nn.Linear(in_channels, 64),
+            nn.Tanh(),
+            nn.Linear(64, 1)
+        )
+        
         # 使用全局池化 + MLP
-        self.fc1 = nn.Linear(in_channels * 2, 128)  # mean + max pooling
-        self.fc2 = nn.Linear(128, 64)
-        self.fc3 = nn.Linear(64, 1)
-        self.dropout = nn.Dropout(0.3)
+        self.fc1 = nn.Linear(in_channels * 3, 256)  # attention + mean + max pooling
+        self.bn1 = nn.BatchNorm1d(256)
+        self.fc2 = nn.Linear(256, 128)
+        self.bn2 = nn.BatchNorm1d(128)
+        self.fc3 = nn.Linear(128, 1)
+        self.dropout = nn.Dropout(0.4)
 
     def forward(self, h, batch):
+        # 计算注意力权重
+        att_scores = self.attention(h)
+        att_weights = torch.softmax(att_scores, dim=0)
+        h_att = global_mean_pool(h * att_weights, batch)
+        
         # 使用全局平均池化和最大池化
         h_mean = global_mean_pool(h, batch)
         h_max = global_max_pool(h, batch)
         
-        # 拼接两种池化结果
-        h = torch.cat([h_mean, h_max], dim=1)
+        # 拼接三种池化结果：注意力加权、平均、最大
+        h = torch.cat([h_att, h_mean, h_max], dim=1)
         
-        # MLP
-        h = F.relu(self.fc1(h))
+        # MLP with batch normalization
+        h = F.relu(self.bn1(self.fc1(h)))
         h = self.dropout(h)
-        h = F.relu(self.fc2(h))
+        h = F.relu(self.bn2(self.fc2(h)))
         h = self.dropout(h)
         h = torch.sigmoid(self.fc3(h))
         
