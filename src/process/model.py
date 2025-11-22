@@ -31,9 +31,10 @@ class Readout(nn.Module):
         
         # 注意力机制：学习节点的重要性权重
         self.attention = nn.Sequential(
-            nn.Linear(in_channels, 64),
-            nn.Tanh(),
-            nn.Linear(64, 1)
+            nn.Linear(in_channels, 128),
+            nn.ReLU(),
+            nn.Dropout(0.3),
+            nn.Linear(128, 1)
         )
         
         # 使用全局池化 + MLP
