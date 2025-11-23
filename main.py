@@ -153,7 +153,7 @@ def process_task(stopping, test_only=False):
     # split the dataset and pass to DataLoader with batch size
     train_loader, val_loader, test_loader = list(
         map(
-            lambda x: x.get_loader(context.batch_size, context.shuffle),
+            lambda x: x.get_loader(context.batch_size, True),
             data.train_val_test_split(input_dataset, False),
         )
     )
